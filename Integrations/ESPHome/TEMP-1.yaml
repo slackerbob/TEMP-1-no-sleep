@@ -1,7 +1,6 @@
-#Define Project
 substitutions:
   name: apollo-temp-1
-  version: "24.5.25.1"
+  version: "24.7.10.1"
   device_description: ${name} made by Apollo Automation - version ${version}.
 
 esphome:
@@ -16,7 +15,7 @@ esphome:
     name: "ApolloAutomation.TEMP-1"
     version: "${version}"
 
-  min_version: 2023.11.1
+  min_version: 2024.2.0
 
 esp32:
   board: esp32-c3-devkitm-1
@@ -37,16 +36,20 @@ globals:
     type: uint32_t
     initial_value: '0'
 
-# Enable Home Assistant API
 api:
+  services:
+    - service: play_buzzer
+      variables:
+        song_str: string
+      then:
+        - rtttl.play:
+            rtttl: !lambda 'return song_str;'
 
 ota:
-
+  - platform: esphome
 wifi:
   on_connect:
-    - delay: 5s # Gives time for improv results to be transmitted
-
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
+    - delay: 5s
   ap:
     ssid: "Apollo TEMP1 Hotspot"
 
@@ -58,14 +61,26 @@ web_server:
 
 logger:
 
+external_components:
+  - source: github://ApolloAutomation/esphome-battery-component
+    components: [max17048] #Forked OptionZero
+
 i2c:
   sda: GPIO1
   scl: GPIO0
   id: bus_a
 
-dallas:
-  - pin: GPIO18
-    update_interval: 5s
+one_wire:
+  - platform: gpio
+    pin: GPIO18
+
+# Buzzer
+output:
+  - platform: ledc
+    pin: GPIO10
+    id: buzzer
+rtttl:
+ output: buzzer
 
 number:
   - platform: template
@@ -122,9 +137,11 @@ sensor:
     id: wifi_signal_db
     update_interval: 60s
     entity_category: "diagnostic"
-  - platform: dallas
-    index: 0
+
+  - platform: dallas_temp
     name: "Temperature Probe"
+    update_interval: 5s
+    
   - platform: aht10
     variant: AHT20
     temperature:
@@ -132,6 +149,14 @@ sensor:
     humidity:
       name: "Room Humidity"
     update_interval: 5s
+
+  - platform: max17048
+    battery_voltage:
+      name: Battery voltage
+      id: batt_v
+    battery_level:
+      name: Battery level
+      id: batt_pct
 
 light:
   - platform: esp32_rmt_led_strip
@@ -174,7 +199,11 @@ switch:
   - platform: factory_reset
     id: factory_reset_switch
     internal: true
+  - platform: gpio
+    pin: GPIO2
+    name: "Accessory Power"
+    id: accessory_power
  
 
-
+#TODO: If Acc Power Off, Don't Update Temp/Humidity
   
