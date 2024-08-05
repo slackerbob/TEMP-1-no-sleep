@@ -24,25 +24,13 @@ dashboard_import:
   package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1.yaml
   import_full_config: false
 
-improv_serial:
-
-esp32_improv:
-  authorizer: none
-
-
-
 ota:
   - platform: esphome
 wifi:
-  on_connect:
-    - delay: 5s
-    - ble.disable:
-  on_disconnect:
-    - ble.enable:
   ap:
     ssid: "Apollo TEMP1 Hotspot"
-
-logger:
+bluetooth_proxy:
+  active: true
 
 packages:
   remote_package:
