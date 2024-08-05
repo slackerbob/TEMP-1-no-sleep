@@ -54,6 +54,11 @@ rtttl:
  output: buzzer
 
 
+deep_sleep:
+  id: deep_sleep_1
+  sleep_duration: 4h
+  run_duration: 30s
+
 # TODO: Add temp difference threshold notification. Sensor wakes up, checks temp difference from last measurement, if greater than threshold, send notification.
 
 
@@ -71,6 +76,7 @@ number:
     update_interval: never
     step: 0.1
     mode: box
+    
   - platform: template
     name: AHT Humidity Offset
     id: aht_humidity_offset
@@ -84,6 +90,7 @@ number:
     update_interval: never
     step: 0.1
     mode: box
+
   - platform: template
     name: Max Temp
     id: max_temp
@@ -97,6 +104,7 @@ number:
     update_interval: never
     step: 0.1
     mode: box
+
   - platform: template
     name: Min Temp
     id: aht_humidity_offset
@@ -110,6 +118,44 @@ number:
     update_interval: never
     step: 0.1
     mode: box
+
+  - platform: template
+    name: "Run Duration"
+    id: deep_sleep_run_duration
+    min_value: 1
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 30
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "s"
+    on_value:
+      then:
+        - lambda: |-
+            id(deep_sleep_1).set_run_duration(x * 1000);
+  
+  - platform: template
+    name: "Sleep Duration"
+    id: deep_sleep_sleep_duration
+    min_value: 1
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 24
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "h"
+    on_value:
+      then:
+        - lambda: |-
+            id(deep_sleep_1).set_sleep_duration(x * 60 * 60 * 1000);
     
 
 binary_sensor:
