@@ -16,6 +16,7 @@ api:
       then:
         - rtttl.play:
             rtttl: !lambda 'return song_str;'
+  reboot_timeout: 0s
 
 globals:
   - id: cycleCounter
