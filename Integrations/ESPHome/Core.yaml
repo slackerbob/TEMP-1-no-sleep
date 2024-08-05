@@ -107,7 +107,7 @@ number:
 
   - platform: template
     name: Min Temp
-    id: aht_humidity_offset
+    id: min_temp
     restore_value: true
     initial_value: 0
     min_value: -70.0
