@@ -123,7 +123,7 @@ number:
   - platform: template
     name: "Run Duration"
     id: deep_sleep_run_duration
-    min_value: 1
+    min_value: 0
     max_value: 800
     step: 1
     mode: box
@@ -142,7 +142,7 @@ number:
   - platform: template
     name: "Sleep Duration"
     id: deep_sleep_sleep_duration
-    min_value: 1
+    min_value: 0
     max_value: 800
     step: 1
     mode: box
@@ -182,6 +182,10 @@ binary_sensor:
               // Remove Wifi
               id(factory_reset_switch).turn_on();
             }
+  - platform: homeassistant
+    name: "OTA Mode"
+    id: ota_mode
+    entity_id: input_boolean.ota_mode
 
 sensor:
   - platform: internal_temperature
@@ -270,5 +274,11 @@ switch:
     name: "Alarm Outside Temp Range"
     id: alarm_outside_temp_range
     optimistic: true
- 
-  
+  - platform: template
+    name: "Prevent Sleep"
+    id: prevent_sleep
+    icon: mdi:sleep
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: "config"
+    initial_value: true
