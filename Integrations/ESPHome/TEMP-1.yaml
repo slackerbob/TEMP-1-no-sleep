@@ -17,12 +17,13 @@ esphome:
     then:
       - switch.turn_on: accessory_power
       - lambda: |-
-          ESP_LOGW("Apollo", "Power On");
           id(deep_sleep_1).set_run_duration(id(deep_sleep_run_duration).state * 1000);
           id(deep_sleep_1).set_sleep_duration(id(deep_sleep_sleep_duration).state * 60 * 60 * 1000);
       - if:
           condition:
-            lambda: 'return id(ota_mode).state || id(prevent_sleep).state;'
+            or:
+              - binary_sensor.is_on: ota_mode
+              - switch.is_on: prevent_sleep
           then:
              - lambda: |- 
                 ESP_LOGW("Apollo", "Preventing Deep Sleep Due To OTA On Boot");
