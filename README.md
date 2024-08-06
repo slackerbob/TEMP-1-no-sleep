@@ -4,7 +4,7 @@
 
 Key Features of the TEMP-1 Sensor:
 
-External 1m Temperature Probe: The TEMP-1 comes with a 1m waterproof temperature probe. This allows you to measure temperature in hard-to-reach places or in areas where the sensor itself cannot be placed.
+External 1.5m Temperature Probe: The TEMP-1 comes with a 1m waterproof temperature probe. This allows you to measure temperature in hard-to-reach places or in areas where the sensor itself cannot be placed.
 
 Onboard Temperature/Humidity Sensor: The TEMP-1 also has an onboard temperature sensor, which can be used to measure ambient temperature and humidity.
 

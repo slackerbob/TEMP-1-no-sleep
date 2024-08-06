@@ -1,6 +1,6 @@
 substitutions:
   name: apollo-temp-1
-  version: "24.8.5.1"
+  version: "24.8.6.1"
   device_description: ${name} made by Apollo Automation - version ${version}.
 
 esp32:
@@ -57,11 +57,11 @@ rtttl:
 
 deep_sleep:
   id: deep_sleep_1
-  sleep_duration: 4h
+  sleep_duration: 8h
   run_duration: 30s
 
 # TODO: Add temp difference threshold notification. Sensor wakes up, checks temp difference from last measurement, if greater than threshold, send notification.
-
+# TODO: Add option to only notify when temp difference is greater than difference threshold.
 
 number:
   - platform: template
@@ -123,7 +123,7 @@ number:
   - platform: template
     name: "Run Duration"
     id: deep_sleep_run_duration
-    min_value: 0
+    min_value: 1
     max_value: 800
     step: 1
     mode: box
@@ -142,14 +142,14 @@ number:
   - platform: template
     name: "Sleep Duration"
     id: deep_sleep_sleep_duration
-    min_value: 0
+    min_value: 1
     max_value: 800
     step: 1
     mode: box
     update_interval: never
     optimistic: true
     restore_value: true
-    initial_value: 24
+    initial_value: 8
     icon: "mdi:arrow-collapse-right"
     entity_category: CONFIG
     unit_of_measurement: "h"
@@ -278,7 +278,14 @@ switch:
     name: "Prevent Sleep"
     id: prevent_sleep
     icon: mdi:sleep
-    restore_mode: RESTORE_DEFAULT_OFF
+    restore_mode: RESTORE_DEFAULT_ON
     optimistic: true
     entity_category: "config"
-    initial_value: true
+    on_turn_on:
+      then:
+        - lambda: |- 
+            id(deep_sleep_1).prevent_deep_sleep();
+    on_turn_off:
+      then:
+        - lambda: |- 
+            id(deep_sleep_1).allow_deep_sleep();
