@@ -1,6 +1,6 @@
 substitutions:
   name: apollo-temp-1
-  version: "24.8.6.2"
+  version: "24.8.6.3"
   device_description: ${name} made by Apollo Automation - version ${version}.
 
 esp32:
@@ -100,7 +100,7 @@ number:
     min_value: -70.0
     max_value: 120.0
     entity_category: "CONFIG"
-    unit_of_measurement: "%"
+    unit_of_measurement: "°C"
     optimistic: true
     update_interval: never
     step: 0.1
@@ -114,7 +114,7 @@ number:
     min_value: -70.0
     max_value: 120.0
     entity_category: "CONFIG"
-    unit_of_measurement: "%"
+    unit_of_measurement: "°C"
     optimistic: true
     update_interval: never
     step: 0.1

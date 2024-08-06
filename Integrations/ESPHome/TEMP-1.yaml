@@ -42,6 +42,7 @@ esp32_improv:
 
 ota:
   - platform: esphome
+    id: ota_esphome
   - platform: http_request
     id: ota_managed
 
