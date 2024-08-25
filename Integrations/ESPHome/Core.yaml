@@ -1,6 +1,6 @@
 substitutions:
   name: apollo-temp-1
-  version: "24.8.6.6"
+  version: "24.8.25.6"
   device_description: ${name} made by Apollo Automation - version ${version}.
 
 esp32:
@@ -238,6 +238,10 @@ sensor:
     battery_level:
       name: Battery level
       id: batt_pct
+      filters:
+        - lambda: |
+            if (x > 100) return 100;
+            else return (x);
 
 light:
   - platform: esp32_rmt_led_strip
