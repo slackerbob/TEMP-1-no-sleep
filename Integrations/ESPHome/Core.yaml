@@ -1,6 +1,6 @@
 substitutions:
   name: apollo-temp-1
-  version: "24.8.6.6"
+  version: "24.8.25.7"
   device_description: ${name} made by Apollo Automation - version ${version}.
 
 esp32:
@@ -27,6 +27,10 @@ globals:
     restore_value: no
     type: uint32_t
     initial_value: '0'
+  - id: last_temp
+    type: float
+    restore_value: yes
+    initial_value: '0.0'
 
 captive_portal:
 
@@ -60,12 +64,10 @@ deep_sleep:
   sleep_duration: 8h
   run_duration: 30s
 
-# TODO: Add temp difference threshold notification. Sensor wakes up, checks temp difference from last measurement, if greater than threshold, send notification.
-# TODO: Add option to only notify when temp difference is greater than difference threshold.
 
 number:
   - platform: template
-    name: AHT Temperature Offset
+    name: Board Temperature Offset
     id: aht_temperature_offset
     restore_value: true
     initial_value: 0.0
@@ -79,7 +81,7 @@ number:
     mode: box
 
   - platform: template
-    name: AHT Humidity Offset
+    name: Board Humidity Offset
     id: aht_humidity_offset
     restore_value: true
     initial_value: 0
@@ -93,12 +95,12 @@ number:
     mode: box
 
   - platform: template
-    name: Max Temp
+    name: Max Probe Temp
     id: max_temp
     restore_value: true
-    initial_value: 0
-    min_value: -70.0
-    max_value: 120.0
+    initial_value: 125.0
+    min_value: -55.0
+    max_value: 125.0
     entity_category: "CONFIG"
     unit_of_measurement: "°C"
     optimistic: true
@@ -107,12 +109,26 @@ number:
     mode: box
 
   - platform: template
-    name: Min Temp
+    name: Min Probe Temp
     id: min_temp
     restore_value: true
-    initial_value: 0
-    min_value: -70.0
-    max_value: 120.0
+    initial_value: -55.0
+    min_value: -55.0
+    max_value: 125.0
+    entity_category: "CONFIG"
+    unit_of_measurement: "°C"
+    optimistic: true
+    update_interval: never
+    step: 0.1
+    mode: box
+
+  - platform: template
+    name: Probe Temp Difference Threshold
+    id: temp_diff_threshold
+    restore_value: true
+    initial_value: 0.0
+    min_value: -55.0
+    max_value: 125.0
     entity_category: "CONFIG"
     unit_of_measurement: "°C"
     optimistic: true
@@ -178,9 +194,15 @@ binary_sensor:
     on_release:
       then:
         - lambda: |-
-            if (millis() - id(button_press_timestamp) >= 5000) {
+            if (millis() - id(button_press_timestamp) >= 10000) {
               // Remove Wifi
               id(factory_reset_switch).turn_on();
+            }
+            else if (millis() - id(button_press_timestamp) >= 1000) {
+              //Turn Prevent Sleep On
+              id(prevent_sleep).turn_on();
+              //Prevent Sleep
+              id(deep_sleep_1).prevent_deep_sleep();
             }
             else {
               // StatusCheck
@@ -218,9 +240,18 @@ sensor:
   - platform: dallas_temp
     name: "Temperature Probe"
     update_interval: 5s
+    id: temp_probe
+    on_value:
+      if:
+        condition:
+          switch.is_on: alarm_outside_temp_range
+        then:
+          - lambda: |-
+              id(tempRangeCheck).execute();
     
   - platform: aht10
     variant: AHT20
+    id: aht20
     temperature:
       name: "Board Temperature"
       filters:
@@ -238,6 +269,10 @@ sensor:
     battery_level:
       name: Battery level
       id: batt_pct
+      filters:
+        - lambda: |
+            if (x > 100) return 100;
+            else return (x);
 
 light:
   - platform: esp32_rmt_led_strip
@@ -302,6 +337,15 @@ switch:
         - lambda: |- 
             id(deep_sleep_1).allow_deep_sleep();
 
+  - platform: template
+    name: Notify Only Outside Temp Difference
+    id: notify_only_outside_temp_difference
+    icon: mdi:thermometer
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: "config"
+
+
 
 script:
   - id: statusCheck
@@ -340,4 +384,13 @@ script:
       - delay: 5s
       - light.turn_off: rgb_light
 
-
+  - id: tempRangeCheck
+    then:
+      - if:
+          condition:
+            or:
+              - lambda: 'return id(max_temp)->state < id(temp_probe).state;'
+              - lambda: 'return id(temp_probe).state < id(min_temp)->state;'
+          then:
+            - rtttl.play:
+                rtttl: "return siren:d=8,o=5,b=100:d,e,d,e,d,e,d,e;"
