@@ -1,6 +1,6 @@
 substitutions:
   name: apollo-temp-1
-  version: "24.8.25.7"
+  version: "24.8.26.1"
   device_description: ${name} made by Apollo Automation - version ${version}.
 
 esp32:
@@ -158,7 +158,7 @@ number:
   - platform: template
     name: "Sleep Duration"
     id: deep_sleep_sleep_duration
-    min_value: 1
+    min_value: 0
     max_value: 800
     step: 1
     mode: box
