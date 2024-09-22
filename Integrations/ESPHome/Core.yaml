@@ -1,6 +1,6 @@
 substitutions:
   name: apollo-temp-1
-  version: "24.9.5.1"
+  version: "24.9.21.1"
   device_description: ${name} made by Apollo Automation - version ${version}.
 
 esp32:
@@ -17,6 +17,27 @@ api:
         - rtttl.play:
             rtttl: !lambda 'return song_str;'
   reboot_timeout: 0s
+  on_client_connected:
+    then:
+      - delay: 5s
+      - if:
+          condition:
+            or:
+              - binary_sensor.is_on: ota_mode
+              - switch.is_on: prevent_sleep
+          then:
+            - lambda: |- 
+                ESP_LOGW("Apollo", "Preventing Deep Sleep Due To OTA Or Switch");
+                id(deep_sleep_1).prevent_deep_sleep(); 
+          else: 
+            - if:
+                condition:
+                  switch.is_on: sleep_after_connecting
+                then:
+                  - switch.turn_off: accessory_power
+                  - deep_sleep.enter:
+                      id: deep_sleep_1
+
 
 globals:
   - id: cycleCounter
@@ -216,10 +237,14 @@ binary_sensor:
       then:
         - lambda: |- 
             id(deep_sleep_1).prevent_deep_sleep();
-    on_release:
+    on_release:  
       then:
-        - lambda: |- 
-            id(deep_sleep_1).allow_deep_sleep();
+        - if:
+            condition:
+              switch.is_off: prevent_sleep
+            then:
+              - lambda: |- 
+                  id(deep_sleep_1).allow_deep_sleep();
 
 sensor:
   - platform: internal_temperature
@@ -334,8 +359,18 @@ switch:
             id(deep_sleep_1).prevent_deep_sleep();
     on_turn_off:
       then:
-        - lambda: |- 
-            id(deep_sleep_1).allow_deep_sleep();
+        - if:
+            condition:
+              binary_sensor.is_off: ota_mode
+            then:
+              - lambda: |- 
+                  id(deep_sleep_1).allow_deep_sleep();
+  - platform: template
+    name: "Sleep After Connecting"
+    id: sleep_after_connecting
+    icon: mdi:sleep
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
 
   - platform: template
     name: Notify Only Outside Temp Difference
