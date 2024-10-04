@@ -1,6 +1,6 @@
 substitutions:
   name: apollo-temp-1
-  version: "24.9.21.2"
+  version: "24.10.3.1"
   device_description: ${name} made by Apollo Automation - version ${version}.
 
 esp32:
