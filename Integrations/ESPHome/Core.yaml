@@ -69,7 +69,9 @@ i2c:
 
 one_wire:
   - platform: gpio
-    pin: GPIO5
+    pin: 
+      number: GPIO4
+      allow_other_uses: true
 
 # Buzzer
 output:
@@ -82,8 +84,8 @@ rtttl:
 
 deep_sleep:
   id: deep_sleep_1
-  sleep_duration: 8h
-  run_duration: 30s
+  sleep_duration: 12h
+  run_duration: 60s
 
 
 number:
@@ -232,7 +234,7 @@ binary_sensor:
   - platform: homeassistant
     name: "OTA Mode"
     id: ota_mode
-    entity_id: input_boolean.ota_mode
+    entity_id: input_boolean.apollo_ota_mode
     on_press:
       then:
         - lambda: |- 
@@ -298,12 +300,37 @@ sensor:
         - lambda: |
             if (x > 100) return 100;
             else return (x);
+  
+
+  - platform: ntc
+    id: ntc_sensor
+    name: Food Probe
+    sensor: resistance_sensor
+    calibration:
+      b_constant: 3950
+      reference_temperature: 25°C
+      reference_resistance: 100kOhm
+
+  - platform: resistance
+    id: resistance_sensor
+    sensor: source_sensor
+    configuration: DOWNSTREAM
+    reference_voltage: 3.3V
+    resistor: 100kOhm
+    name: Resistance Sensor
+
+  - platform: adc
+    pin: 
+      number: GPIO4
+      allow_other_uses: true
+    id: source_sensor
+    update_interval: 5s
 
 light:
   - platform: esp32_rmt_led_strip
     id: rgb_light
     name: "RGB Light"
-    pin: GPIO3
+    pin: GPIO6
     rmt_channel: 0
     default_transition_length: 0s
     chipset: WS2812
@@ -339,7 +366,7 @@ switch:
     id: factory_reset_switch
     internal: true
   - platform: gpio
-    pin: GPIO4
+    pin: GPIO5
     name: "Accessory Power"
     id: accessory_power
   - platform: template
@@ -429,3 +456,5 @@ script:
           then:
             - rtttl.play:
                 rtttl: "return siren:d=8,o=5,b=100:d,e,d,e,d,e,d,e;"
+
+

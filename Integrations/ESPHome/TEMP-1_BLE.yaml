@@ -65,16 +65,16 @@ dashboard_import:
 
 ota:
   - platform: esphome
+    id: ota_esphome
+
+safe_mode:
+
 wifi:
   ap:
     ssid: "Apollo TEMP1 Hotspot"
+    
 bluetooth_proxy:
   active: true
 
 packages:
-  remote_package:
-    url: https://github.com/ApolloAutomation/TEMP-1/
-    ref: main
-    files:
-      - Integrations/ESPHome/Core.yaml
-    refresh: 0d
+  core: !include Core.yaml
