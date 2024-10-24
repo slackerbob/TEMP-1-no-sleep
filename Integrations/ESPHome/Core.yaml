@@ -38,7 +38,6 @@ api:
                   - deep_sleep.enter:
                       id: deep_sleep_1
 
-
 globals:
   - id: cycleCounter
     type: int
@@ -70,8 +69,7 @@ i2c:
 one_wire:
   - platform: gpio
     pin: 
-      number: GPIO4
-      allow_other_uses: true
+      number: GPIO3
 
 # Buzzer
 output:
@@ -177,7 +175,7 @@ number:
       then:
         - lambda: |-
             id(deep_sleep_1).set_run_duration(x * 1000);
-  
+
   - platform: template
     name: "Sleep Duration"
     id: deep_sleep_sleep_duration
@@ -196,7 +194,6 @@ number:
       then:
         - lambda: |-
             id(deep_sleep_1).set_sleep_duration(x * 60 * 60 * 1000);
-    
 
 binary_sensor:
   - platform: status
@@ -300,7 +297,6 @@ sensor:
         - lambda: |
             if (x > 100) return 100;
             else return (x);
-  
 
   - platform: ntc
     id: ntc_sensor
@@ -322,7 +318,6 @@ sensor:
   - platform: adc
     pin: 
       number: GPIO4
-      allow_other_uses: true
     id: source_sensor
     update_interval: 5s
 
@@ -369,6 +364,18 @@ switch:
     pin: GPIO5
     name: "Accessory Power"
     id: accessory_power
+    restore_mode: ALWAYS_ON
+    setup_priority: 1100
+
+    #Low NTC, High DS18B20
+  - platform: gpio
+    pin: GPIO2
+    name: "Selector"
+    id: sensor_selector
+    restore_mode: RESTORE_DEFAULT_ON
+    entity_category: "config"
+    setup_priority: 1100
+
   - platform: template
     name: "Alarm Outside Temp Range"
     id: alarm_outside_temp_range    
