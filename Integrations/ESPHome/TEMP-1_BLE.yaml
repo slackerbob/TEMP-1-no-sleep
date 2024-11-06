@@ -1,13 +1,13 @@
 esphome:
-  name: "${name}"
-  friendly_name: Apollo TEMP-1
-  comment: Apollo TEMP-1
+  name: "apollo-temp-1ble"
+  friendly_name: Apollo TEMP-1BLE
+  comment: Apollo TEMP-1BLE
   name_add_mac_suffix: true
   platformio_options:
     board_build.flash_mode: dio
 
   project:
-    name: "ApolloAutomation.TEMP-1"
+    name: "ApolloAutomation.TEMP-1BLE"
     version: "${version}"
 
   min_version: 2024.2.0
