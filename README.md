@@ -16,6 +16,6 @@ Dimensions & Design:
 The TEMP-1 measures just xmm x xmm x x0mm, and we have focused on efficient heat management within this small package to maintain sensor accuracy. This includes a thoughtful PCB layout and case design, incorporating ventilation and strategic component placement. 
 
 Links: \
-Discord (Support/feedback/discussion/future products): [https://discord.gg/8PpS4yUaUh](https://discord.gg/mMNgQPyF94) \
+Discord (Support/feedback/discussion/future products): [https://dsc.gg/ApolloAutomation] \
 Shop: [https://apolloautomation.com](https://apolloautomation.com/products/temp-1)https://apolloautomation.com/products/temp-1 \
 Wiki: [https://wiki.apolloautomation.com](https://wiki.apolloautomation.com/)https://wiki.apolloautomation.com/ 
