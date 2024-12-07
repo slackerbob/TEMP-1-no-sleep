@@ -13,6 +13,10 @@ jobs:
           - Integrations/ESPHome/TEMP-1.yaml
           - Integrations/ESPHome/TEMP-1_BLE.yaml
           - Integrations/ESPHome/TEMP-1_Minimal.yaml
+        esphome-version:
+          - stable
+          - beta
+          - dev
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4.1.7
