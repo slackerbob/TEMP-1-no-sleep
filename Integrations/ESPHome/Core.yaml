@@ -245,6 +245,13 @@ sensor:
     name: "Temperature Probe"
     update_interval: never
     id: temp_probe
+    filters:
+      - lambda: |-
+          // If the Food probe is selected, return NaN (not a number)
+          if (id(temp_probe_select).state == "Food") {
+            return NAN; // Report NaN
+          }
+          return x; // Otherwise, return the normal value
     on_value:
       if:
         condition:
@@ -267,7 +274,7 @@ sensor:
       filters:
         - lambda: return x - id(aht_humidity_offset).state;
     update_interval: never
-
+  
   - platform: ntc
     id: ntc_sensor
     name: Food Probe
@@ -277,7 +284,13 @@ sensor:
       reference_temperature: 25°C
       reference_resistance: 100kOhm
     filters:
-      - lambda: return x - id(ntc_temperature_offset).state;
+      - lambda: |-
+          // If the Dallas sensor is selected, return NaN (not a number)
+          if (id(temp_probe_select).state == "Dallas") {
+            return NAN; // Override with NaN
+          }
+          // Otherwise, subtract the temperature offset
+          return x - id(ntc_temperature_offset).state;
     on_value:
       if:
         condition:
@@ -289,11 +302,11 @@ sensor:
   - platform: resistance
     id: resistance_sensor
     sensor: source_sensor
-    configuration: DOWNSTREAM
+    configuration: UPSTREAM
     reference_voltage: 3.3V
     resistor: 100kOhm
     name: Resistance Sensor
-    
+    internal: true
 
   - platform: adc
     pin: 
