@@ -1,5 +1,5 @@
 substitutions:
-  version: "25.1.21.1"
+  version: "25.1.23.1"
 
 esp32:
   board: esp32-c3-devkitm-1
@@ -63,8 +63,6 @@ globals:
 
 captive_portal:
 
-web_server:
-  port: 80
 
 i2c:
   sda: GPIO1
