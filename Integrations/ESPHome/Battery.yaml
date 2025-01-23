@@ -1,0 +1,66 @@
+external_components:
+  - source: github://ApolloAutomation/esphome-battery-component
+    components: [max17048] #Forked OptionZero
+
+deep_sleep:
+  id: deep_sleep_1
+  sleep_duration: 12h
+  run_duration: 90s
+
+sensor:
+  - platform: max17048
+    id: max_17048
+    battery_voltage:
+      name: Battery voltage
+      id: batt_v
+    battery_level:
+      name: Battery level
+      id: batt_pct
+      filters:
+        - lambda: |
+            if (x > 100) return 100;
+            else return (x);
+
+number:
+  - platform: template
+    name: "Sleep Duration"
+    id: deep_sleep_sleep_duration
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 12
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "h"
+    on_value:
+      then:
+        - lambda: |-
+            id(deep_sleep_1).set_sleep_duration(x * 60 * 60 * 1000);
+
+script:
+  - id: reportAllValues
+    then:
+      - component.update: temp_probe
+      - component.update: source_sensor
+      - component.update: aht_20
+      - component.update: wifi_signal_db
+      - component.update: sys_esp_temperature
+      - component.update: sys_uptime
+      - component.update: max_17048
+
+interval:
+  - interval: 30s
+    then:
+      - switch.turn_on: accessory_power
+      - delay: 10s
+      - component.update: source_sensor
+      - component.update: aht_20
+      - component.update: temp_probe
+      - delay: 10s
+      - light.turn_off:
+          id: rgb_light
+      - switch.turn_off: accessory_power
