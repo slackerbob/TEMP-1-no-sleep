@@ -502,8 +502,6 @@ script:
                     condition:
                       - lambda: "return id(aht20Passed) == false;"
                     then:
-                      - lambda: |- 
-                          ESP_LOGW("Apollo", "AHT Test: %d", id(aht_temperature).state);
                       - if:
                           condition:
                             - lambda: "return id(aht_temperature).state > 15;"
