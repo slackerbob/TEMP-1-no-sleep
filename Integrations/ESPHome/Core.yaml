@@ -190,9 +190,12 @@ binary_sensor:
         - lambda: |-
             if (millis() - id(button_press_timestamp) >= 10000) {
               // Remove Wifi
+              id(testCycleCount) = 0;
+              id(runTest) = true;
+              id(prevent_sleep).turn_on();
               id(factory_reset_switch).turn_on();
             }
-            else if (millis() - id(button_press_timestamp) >= 1000) {
+            else if (millis() - id(button_press_timestamp) >= 3000) {
               //Turn Prevent Sleep On
               id(prevent_sleep).turn_on();
               //Prevent Sleep
@@ -201,6 +204,10 @@ binary_sensor:
             else {
               // StatusCheck
               id(statusCheck).execute();
+              delay(3000);
+              id(testCycleCount) = 0;
+              id(runTest) = true;
+              id(testScript).execute();
             }
   - platform: homeassistant
     name: "OTA Mode"
@@ -486,6 +493,7 @@ script:
         then:
           - lambda: "id(runTest) = false;"
           - lambda: "id(testCycleCount) = 0;"
+          - switch.turn_on: accessory_power
           - while:
               condition:
                 - lambda: "return id(testCycleCount) < 5;"
@@ -494,6 +502,8 @@ script:
                     condition:
                       - lambda: "return id(aht20Passed) == false;"
                     then:
+                      - lambda: |- 
+                          ESP_LOGW("Apollo", "AHT Test: %d", id(aht_temperature).state);
                       - if:
                           condition:
                             - lambda: "return id(aht_temperature).state > 15;"
