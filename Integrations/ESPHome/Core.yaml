@@ -1,5 +1,5 @@
 substitutions:
-  version: "25.1.24.1"
+  version: "25.1.25.1"
 
 esp32:
   board: esp32-c3-devkitm-1
@@ -287,7 +287,7 @@ sensor:
     filters:
       - lambda: |-
           // If the Dallas sensor is selected, return NaN (not a number)
-          if (id(temp_probe_select).state == "Dallas") {
+          if (id(temp_probe_select).state == "Temperature") {
             return NAN; // Override with NaN
           }
           // Otherwise, subtract the temperature offset
@@ -352,21 +352,21 @@ button:
 
 select:
   - platform: template
-    name: "Temp Probe select"
+    name: "Select Probe"
     optimistic: true
     restore_value: true
-    initial_option: Dallas
+    initial_option: Temperature
     id: temp_probe_select
     set_action:
       - if:
           condition:
-            lambda: 'return x == "Dallas";'
+            lambda: 'return x == "Temperature";'
           then:
             - switch.turn_on: sensor_selector
           else:
             - switch.turn_off: sensor_selector
     options:
-      - Dallas
+      - Temperature
       - Food
     
 
@@ -469,7 +469,7 @@ script:
           std::string selected_probe = id(temp_probe_select).state.c_str();
           float current_temp;
 
-          if (selected_probe == "Dallas") {
+          if (selected_probe == "Temperature") {
             current_temp = id(temp_probe).state;
           } else if (selected_probe == "Food") {
             current_temp = id(ntc_sensor).state;
