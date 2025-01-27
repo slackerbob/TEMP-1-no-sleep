@@ -41,7 +41,7 @@ esphome:
                       std::string selected_probe = id(temp_probe_select).state.c_str();
                       float current_temp;
 
-                      if (selected_probe == "Dallas") {
+                      if (selected_probe == "Temperature") {
                         current_temp = id(temp_probe).state;
                       } else {
                         current_temp = id(ntc_sensor).state;

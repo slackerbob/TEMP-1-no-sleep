@@ -41,7 +41,7 @@ esphome:
                         std::string selected_probe = id(temp_probe_select).state.c_str();
                         float current_temp;
 
-                        if (selected_probe == "Dallas") {
+                        if (selected_probe == "Temperature") {
                           current_temp = id(temp_probe).state;
                         } else {
                           current_temp = id(ntc_sensor).state;
@@ -80,7 +80,7 @@ esphome:
     - light.turn_off: rgb_light
 
 dashboard_import:
-  package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1.yaml
+  package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1_Minimal.yaml
   import_full_config: false
 
 improv_serial:
