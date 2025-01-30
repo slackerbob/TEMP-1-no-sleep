@@ -44,7 +44,7 @@ globals:
     restore_value: no
     type: uint32_t
     initial_value: '0'
-  - id: last_temp # TODO: Set Last Temp
+  - id: last_temp
     type: float
     restore_value: yes
     initial_value: '0.0'
@@ -156,19 +156,19 @@ number:
     step: 0.1
     mode: box
 
-  #- platform: template
-  #  name: Probe Temp Difference Threshold
-  #  id: temp_diff_threshold
-  #  restore_value: true
-  #  initial_value: 0.0
-  #  min_value: -55.0
-  #  max_value: 125.0
-  #  entity_category: "CONFIG"
-  #  unit_of_measurement: "°C"
-  #  optimistic: true
-  #  update_interval: never
-  #  step: 0.1
-  #  mode: box
+  - platform: template
+    name: Probe Temp Difference Threshold
+    id: temp_diff_threshold
+    restore_value: true
+    initial_value: 0.0
+    min_value: -55.0
+    max_value: 125.0
+    entity_category: "CONFIG"
+    unit_of_measurement: "°C"
+    optimistic: true
+    update_interval: never
+    step: 0.1
+    mode: box
 
 binary_sensor:
   - platform: status
@@ -417,13 +417,13 @@ switch:
               - lambda: |- 
                   id(deep_sleep_1).allow_deep_sleep();
 
-  #- platform: template
-  #  name: Notify Only Outside Temp Difference
-  #  id: notify_only_outside_temp_difference
-  #  icon: mdi:thermometer
-  #  restore_mode: RESTORE_DEFAULT_OFF
-  #  optimistic: true
-  #  entity_category: "config"
+  - platform: template
+    name: Notify Only Outside Temp Difference
+    id: notify_only_outside_temp_difference
+    icon: mdi:thermometer
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    entity_category: "config"
 
 
 script:
