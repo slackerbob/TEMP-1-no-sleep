@@ -44,9 +44,6 @@ interval:
       - switch.turn_off: accessory_power
 
   - interval: 1s
-    if: 
-      condition:
-        - lambda: "id(temp_probe_select).state.c_str() == 'Temperature';"
-      then:
-        - switch.turn_on: accessory_power
-        - component.update: source_sensor
+    then:
+      - switch.turn_on: accessory_power
+      - component.update: source_sensor
