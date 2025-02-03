@@ -38,8 +38,15 @@ interval:
     then:
       - switch.turn_on: accessory_power
       - delay: 10s
-      - component.update: source_sensor
       - component.update: aht_20
       - component.update: temp_probe
       - delay: 10s
       - switch.turn_off: accessory_power
+
+  - interval: 1s
+    if: 
+      condition:
+        - lambda: "id(temp_probe_select).state.c_str() == 'Temperature';"
+      then:
+        - switch.turn_on: accessory_power
+        - component.update: source_sensor
