@@ -11,8 +11,16 @@ jobs:
       matrix:
         file:
           - Integrations/ESPHome/TEMP-1.yaml
+          - Integrations/ESPHome/TEMP-1B.yaml
           - Integrations/ESPHome/TEMP-1_BLE.yaml
+          - Integrations/ESPHome/TEMP-1B_BLE.yaml
+          - Integrations/ESPHome/TEMP-1_Beta.yaml
           - Integrations/ESPHome/TEMP-1_Minimal.yaml
+          - Integrations/ESPHome/TEMP-1B_Minimal.yaml
+        esphome-version:
+          - stable
+          - beta
+          - dev
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4.1.7

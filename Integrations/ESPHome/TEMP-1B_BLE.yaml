@@ -1,13 +1,13 @@
 esphome:
-  name: "apollo-temp-1-minimal"
-  friendly_name: Apollo TEMP-1 Minimal
-  comment: Apollo TEMP-1 Minimal
+  name: "apollo-temp-1bble"
+  friendly_name: Apollo TEMP-1BBLE
+  comment: Apollo TEMP-1BBLE
   name_add_mac_suffix: true
   platformio_options:
     board_build.flash_mode: dio
 
   project:
-    name: "ApolloAutomation.TEMP-1_Minimal"
+    name: "ApolloAutomation.TEMP-1BBLE"
     version: "${version}"
 
   min_version: 2024.2.0
@@ -68,29 +68,31 @@ esphome:
                       - deep_sleep.enter:
                           id: deep_sleep_1
                   
+      
   on_shutdown:
     - light.turn_off: rgb_light
 
+
 dashboard_import:
-  package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1_Minimal.yaml
+  package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1B_BLE.yaml
   import_full_config: false
 
 ota:
   - platform: esphome
     id: ota_esphome
-    
+
 safe_mode:
 
-web_server:
-  port: 80
-
 wifi:
-  id: wifi_1
   ap:
     ssid: "Apollo TEMP1 Hotspot"
-
-logger:
+    
+bluetooth_proxy:
+  active: true
+esp32_ble_tracker:
+  scan_parameters:
+    active: false
 
 packages:
   core: !include Core.yaml
-  nonbattery: !include NonBattery.yaml
+  battery: !include Battery.yaml

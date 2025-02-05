@@ -1,5 +1,100 @@
 substitutions:
-  version: "25.2.3.1"
+  name: apollo-temp-1_beta
+  version: "25.1.23.1"
+  device_description: ${name} made by Apollo Automation - version ${version}.
+
+esphome:
+  name: "${name}"
+  friendly_name: Apollo TEMP-1_Beta
+  comment: Apollo TEMP-1_Beta
+  name_add_mac_suffix: true
+  platformio_options:
+    board_build.flash_mode: dio
+
+  project:
+    name: "ApolloAutomation.TEMP-1_Beta"
+    version: "${version}"
+
+  min_version: 2024.2.0
+  on_boot:
+    priority: 500
+    then:
+      - switch.turn_on: accessory_power
+      - lambda: |-
+          id(deep_sleep_1).set_run_duration(id(deep_sleep_run_duration).state * 1000);
+          id(deep_sleep_1).set_sleep_duration(id(deep_sleep_sleep_duration).state * 60 * 60 * 1000);
+      - if:
+          condition:
+            or:
+              - binary_sensor.is_on: ota_mode
+              - switch.is_on: prevent_sleep
+          then:
+             - lambda: |- 
+                ESP_LOGW("Apollo", "Preventing Deep Sleep Due To OTA On Boot");
+                id(deep_sleep_1).prevent_deep_sleep(); 
+
+      - if:
+          condition:
+            switch.is_on: notify_only_outside_temp_difference
+          then:
+            - logger.log: "Apollo Automation: Notify Only Outside Temp Difference"
+            - delay: 2s
+            - if: # Check If Temp Probe Is Outside Threshold
+                condition:
+                  - lambda: |-
+                      return std::abs(id(temp_probe).state - id(last_temp)) > id(temp_diff_threshold)->state;
+                then: # If So Then Turn On Wifi To Update
+                  - logger.log: "Apollo Automation: Outside Temp Change Detected"
+                  - wifi.enable:
+                  - lambda: |-
+                      id(last_temp) = id(temp_probe).state;
+                else: # If Not Then Check OTA And Sleep
+                  - if:
+                      condition:
+                        and:
+                          - binary_sensor.is_off: ota_mode
+                          - switch.is_off: prevent_sleep
+                      then:
+                      - switch.turn_off: accessory_power
+                      - deep_sleep.enter:
+                          id: deep_sleep_1
+                  
+  on_shutdown:
+    - light.turn_off: rgb_light
+    - switch.turn_off: accessory_power
+
+dashboard_import:
+  package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1_Beta.yaml
+  import_full_config: false
+
+improv_serial:
+
+esp32_improv:
+  authorizer: none
+
+ota:
+  - platform: esphome
+    id: ota_esphome
+  - platform: http_request
+    id: ota_managed
+
+http_request:
+  verify_ssl: true
+
+safe_mode:
+
+
+wifi:
+  id: wifi_1
+  on_connect:
+    - delay: 5s
+    - ble.disable:
+  on_disconnect:
+    - ble.enable:
+  ap:
+    ssid: "Apollo TEMP1 Hotspot"
+
+logger:
 
 esp32:
   board: esp32-c3-devkitm-1
@@ -28,12 +123,14 @@ api:
                 ESP_LOGW("Apollo", "Preventing Deep Sleep Due To OTA Or Switch");
                 id(deep_sleep_1).prevent_deep_sleep(); 
           else: 
-            - delay: 10s
-            - lambda: |-
-                id(reportAllValues).execute();
-            - delay: 5s
-            - deep_sleep.enter:
-                id: deep_sleep_1
+            - if:
+                condition:
+                  switch.is_on: sleep_after_connecting
+                then:
+                  - switch.turn_off: accessory_power
+                  - deep_sleep.enter:
+                      id: deep_sleep_1
+
 
 globals:
   - id: cycleCounter
@@ -48,32 +145,24 @@ globals:
     type: float
     restore_value: yes
     initial_value: '0.0'
-  - id: runTest
-    restore_value: yes
-    type: bool
-    initial_value: "true"
-  - id: testCycleCount
-    type: int
-    restore_value: no
-    initial_value: "0"
-  - id: aht20Passed
-    restore_value: no
-    type: bool
-    initial_value: "false"
 
 captive_portal:
 
+web_server:
+  port: 80
+
+external_components:
+  - source: github://ApolloAutomation/esphome-battery-component
+    components: [max17048] #Forked OptionZero
 
 i2c:
   sda: GPIO1
   scl: GPIO0
   id: bus_a
-  frequency: 200kHz
 
 one_wire:
   - platform: gpio
-    pin: 
-      number: GPIO6
+    pin: GPIO5
 
 # Buzzer
 output:
@@ -81,8 +170,13 @@ output:
     pin: GPIO10
     id: buzzer
 rtttl:
-  id: rtttl_buzzer
-  output: buzzer
+ output: buzzer
+
+
+deep_sleep:
+  id: deep_sleep_1
+  sleep_duration: 8h
+  run_duration: 30s
 
 
 number:
@@ -113,20 +207,6 @@ number:
     update_interval: never
     step: 0.1
     mode: box
-  - platform: template
-    name: Food Probe Offset
-    id: ntc_temperature_offset
-    restore_value: true
-    initial_value: 0.0
-    min_value: -70.0
-    max_value: 70.0
-    entity_category: "CONFIG"
-    unit_of_measurement: "°C"
-    optimistic: true
-    update_interval: never
-    step: 0.1
-    mode: box
-    disabled_by_default: true
 
   - platform: template
     name: Max Probe Temp
@@ -170,6 +250,45 @@ number:
     step: 0.1
     mode: box
 
+  - platform: template
+    name: "Run Duration"
+    id: deep_sleep_run_duration
+    min_value: 1
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 30
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "s"
+    on_value:
+      then:
+        - lambda: |-
+            id(deep_sleep_1).set_run_duration(x * 1000);
+  
+  - platform: template
+    name: "Sleep Duration"
+    id: deep_sleep_sleep_duration
+    min_value: 0
+    max_value: 800
+    step: 1
+    mode: box
+    update_interval: never
+    optimistic: true
+    restore_value: true
+    initial_value: 8
+    icon: "mdi:arrow-collapse-right"
+    entity_category: CONFIG
+    unit_of_measurement: "h"
+    on_value:
+      then:
+        - lambda: |-
+            id(deep_sleep_1).set_sleep_duration(x * 60 * 60 * 1000);
+    
+
 binary_sensor:
   - platform: status
     name: Online
@@ -191,12 +310,9 @@ binary_sensor:
         - lambda: |-
             if (millis() - id(button_press_timestamp) >= 10000) {
               // Remove Wifi
-              id(testCycleCount) = 0;
-              id(runTest) = true;
-              id(prevent_sleep).turn_on();
               id(factory_reset_switch).turn_on();
             }
-            else if (millis() - id(button_press_timestamp) >= 3000) {
+            else if (millis() - id(button_press_timestamp) >= 1000) {
               //Turn Prevent Sleep On
               id(prevent_sleep).turn_on();
               //Prevent Sleep
@@ -205,15 +321,11 @@ binary_sensor:
             else {
               // StatusCheck
               id(statusCheck).execute();
-              delay(3000);
-              id(testCycleCount) = 0;
-              id(runTest) = true;
-              id(testScript).execute();
             }
   - platform: homeassistant
     name: "OTA Mode"
     id: ota_mode
-    entity_id: input_boolean.apollo_ota_mode
+    entity_id: input_boolean.ota_mode
     on_press:
       then:
         - lambda: |- 
@@ -245,15 +357,8 @@ sensor:
 
   - platform: dallas_temp
     name: "Temperature Probe"
-    update_interval: never
+    update_interval: 5s
     id: temp_probe
-    filters:
-      - lambda: |-
-          // If the Food probe is selected, return NaN (not a number)
-          if (id(temp_probe_select).state == "Food") {
-            return NAN; // Report NaN
-          }
-          return x; // Otherwise, return the normal value
     on_value:
       if:
         condition:
@@ -264,58 +369,28 @@ sensor:
     
   - platform: aht10
     variant: AHT20
-    id: aht_20
+    id: aht20
     temperature:
       name: "Board Temperature"
-      id: aht_temperature
       filters:
         - lambda: return x - id(aht_temperature_offset).state;
     humidity:
       name: "Board Humidity"
-      id: aht_humidity
       filters:
         - lambda: return x - id(aht_humidity_offset).state;
-    update_interval: never
-  
-  - platform: ntc
-    id: ntc_sensor
-    name: Food Probe
-    sensor: resistance_sensor
-    calibration:
-      b_constant: 3950
-      reference_temperature: 25°C
-      reference_resistance: 100kOhm
-    filters:
-      - lambda: |-
-          // If the Dallas sensor is selected, return NaN (not a number)
-          if (id(temp_probe_select).state == "Temperature") {
-            return NAN; // Override with NaN
-          }
-          // Otherwise, subtract the temperature offset
-          return x - id(ntc_temperature_offset).state;
-    on_value:
-      if:
-        condition:
-          switch.is_on: alarm_outside_temp_range
-        then:
-          - lambda: |-
-              id(tempRangeCheck).execute();
+    update_interval: 5s
 
-  - platform: resistance
-    id: resistance_sensor
-    sensor: source_sensor
-    configuration: UPSTREAM
-    reference_voltage: 3.3V
-    resistor: 100kOhm
-    name: Resistance Sensor
-    internal: true
-
-  - platform: adc
-    pin: 
-      number: GPIO4
-    id: source_sensor
-    update_interval: never
-    attenuation: auto
+  - platform: max17048
+    battery_voltage:
+      name: Battery voltage
+      id: batt_v
+    battery_level:
+      name: Battery level
+      id: batt_pct
+      filters:
+        - lambda: |
+            if (x > 100) return 100;
+            else return (x);
 
 light:
   - platform: esp32_rmt_led_strip
@@ -351,52 +426,19 @@ button:
     name: "Factory Reset ESP"
     id: factory_reset_all
 
-select:
-  - platform: template
-    name: "Select Probe"
-    optimistic: true
-    restore_value: true
-    initial_option: Temperature
-    id: temp_probe_select
-    set_action:
-      - if:
-          condition:
-            lambda: 'return x == "Temperature";'
-          then:
-            - switch.turn_on: sensor_selector
-          else:
-            - switch.turn_off: sensor_selector
-    options:
-      - Temperature
-      - Food
-    
 
 switch:
   - platform: factory_reset
     id: factory_reset_switch
     internal: true
   - platform: gpio
-    pin: GPIO5
+    pin: GPIO4
     name: "Accessory Power"
     id: accessory_power
-    restore_mode: ALWAYS_ON
-    setup_priority: 1100
-    internal: true
-
-    #Low NTC, High DS18B20
-  - platform: gpio
-    pin: GPIO7
-    id: sensor_selector
-    restore_mode: RESTORE_DEFAULT_ON
-    entity_category: "config"
-    setup_priority: 1100
-    internal: true
-
   - platform: template
     name: "Alarm Outside Temp Range"
     id: alarm_outside_temp_range    
     optimistic: true
-    restore_mode: RESTORE_DEFAULT_OFF
   - platform: template
     name: "Prevent Sleep"
     id: prevent_sleep
@@ -416,6 +458,12 @@ switch:
             then:
               - lambda: |- 
                   id(deep_sleep_1).allow_deep_sleep();
+  - platform: template
+    name: "Sleep After Connecting"
+    id: sleep_after_connecting
+    icon: mdi:sleep
+    restore_mode: RESTORE_DEFAULT_ON
+    optimistic: true
 
   - platform: template
     name: Notify Only Outside Temp Difference
@@ -424,6 +472,7 @@ switch:
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: "config"
+
 
 
 script:
@@ -465,86 +514,12 @@ script:
 
   - id: tempRangeCheck
     then:
-      - lambda: |-
-          // Determine the selected temperature probe
-          std::string selected_probe = id(temp_probe_select).state.c_str();
-          float current_temp;
-
-          if (selected_probe == "Temperature") {
-            current_temp = id(temp_probe).state;
-          } else if (selected_probe == "Food") {
-            current_temp = id(ntc_sensor).state;
-          } else {
-            ESP_LOGW("custom", "No valid temperature probe selected.");
-            return;
-          }
-
-          // Check if temperature is out of range
-          if (current_temp > id(max_temp)->state || current_temp < id(min_temp)->state) {
-            ESP_LOGI("custom", "Temperature out of range: %f", current_temp);
-            id(rtttl_buzzer).play("siren:d=8,o=5,b=100:d,e,d,e,d,e,d,e;");
-          } else {
-            ESP_LOGI("custom", "Temperature is within range: %f", current_temp);
-          }
-  - id: testScript
-    then:
-      if: 
-        condition:
-          - lambda: "return id(runTest) == true;"
-        then:
-          - lambda: "id(runTest) = false;"
-          - lambda: "id(testCycleCount) = 0;"
-          - switch.turn_on: accessory_power
-          - while:
-              condition:
-                - lambda: "return id(testCycleCount) < 5;"
-              then:
-                - if:
-                    condition:
-                      - lambda: "return id(aht20Passed) == false;"
-                    then:
-                      - if:
-                          condition:
-                            - lambda: "return id(aht_temperature).state > 15;"
-                          then:
-                            - lambda: "id(aht20Passed) = true;"
-                - lambda: "id(runTest) = false;"
-                - delay: 1s
-                - lambda: "id(testCycleCount) += 1;"
-
-          #Check If Test Passed To Trigger Lights
-          - if:
-              condition:
-                - lambda: "return id(aht20Passed);"
-              then:
-                - lambda: "id(runTest) = false;"
-                - light.turn_on:
-                    id: rgb_light
-                    red: 0%
-                    green: 100%
-                    blue: 0%
-                - delay: 5s
-                - light.turn_on:
-                    id: rgb_light
-                    red: 0%
-                    green: 0%
-                    blue: 0%
-                - light.turn_off:
-                    id: rgb_light
-                
-              else:
-                - lambda: "id(runTest) = false;"
-                - light.turn_on:
-                    id: rgb_light
-                    red: 100%
-                    green: 0%
-                    blue: 0%
-                - delay: 5s
-                - light.turn_on:
-                    id: rgb_light
-                    red: 0%
-                    green: 0%
-                    blue: 0%
-                - light.turn_off:
-                    id: rgb_light
+      - if:
+          condition:
+            or:
+              - lambda: 'return id(max_temp)->state < id(temp_probe).state;'
+              - lambda: 'return id(temp_probe).state < id(min_temp)->state;'
+          then:
+            - rtttl.play:
+                rtttl: "return siren:d=8,o=5,b=100:d,e,d,e,d,e,d,e;"
 
