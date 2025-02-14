@@ -135,7 +135,7 @@ number:
     restore_value: true
     initial_value: 125.0
     min_value: -55.0
-    max_value: 125.0
+    max_value: 300.0
     entity_category: "CONFIG"
     unit_of_measurement: "°C"
     optimistic: true
@@ -170,6 +170,7 @@ number:
     update_interval: never
     step: 0.1
     mode: box
+    disabled_by_default: true
 
 binary_sensor:
   - platform: status
@@ -246,7 +247,7 @@ sensor:
 
   - platform: dallas_temp
     name: "Temperature Probe"
-    update_interval: never
+    update_interval: 60s
     id: temp_probe
     filters:
       - lambda: |-
@@ -276,7 +277,7 @@ sensor:
       id: aht_humidity
       filters:
         - lambda: return x - id(aht_humidity_offset).state;
-    update_interval: never
+    update_interval: 60s
   
   - platform: ntc
     id: ntc_sensor
@@ -352,13 +353,6 @@ button:
     name: "Factory Reset ESP"
     id: factory_reset_all
 
-  - platform: template
-    name: "Search Probes"
-    id: search_probes
-    icon: mdi:play
-    on_press:
-      then:
-        - lambda: "id(one_wire_bus).search();"
 
 select:
   - platform: template
@@ -433,6 +427,7 @@ switch:
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: "config"
+    disabled_by_default: true
 
 
 script:
@@ -557,3 +552,4 @@ script:
                 - light.turn_off:
                     id: rgb_light
 
+interval:  - interval: 1s    then:      - if:          condition:            - switch.is_off: sensor_selector          then:            - component.update: source_sensor
