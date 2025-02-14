@@ -1,5 +1,5 @@
 substitutions:
-  version: "25.2.3.1"
+  version: "25.2.13.1"
 
 esp32:
   board: esp32-c3-devkitm-1
@@ -72,6 +72,7 @@ i2c:
 
 one_wire:
   - platform: gpio
+    id: one_wire_bus
     pin: 
       number: GPIO6
 
@@ -350,6 +351,14 @@ button:
     disabled_by_default: True
     name: "Factory Reset ESP"
     id: factory_reset_all
+
+  - platform: template
+    name: "Search Probes"
+    id: search_probes
+    icon: mdi:play
+    on_press:
+      then:
+        - lambda: "id(one_wire_bus).search();"
 
 select:
   - platform: template
