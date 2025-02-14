@@ -552,4 +552,11 @@ script:
                 - light.turn_off:
                     id: rgb_light
 
-interval:  - interval: 1s    then:      - if:          condition:            - switch.is_off: sensor_selector          then:            - component.update: source_sensor
+interval:  
+  - interval: 1s    
+    then:      
+      - if:          
+          condition:            
+            - switch.is_off: sensor_selector          
+          then:            
+            - component.update: source_sensor
