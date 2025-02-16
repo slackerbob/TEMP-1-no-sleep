@@ -7,7 +7,7 @@ esphome:
     board_build.flash_mode: dio
 
   project:
-    name: "ApolloAutomation.TEMP-1_R2"
+    name: "Apollo.TEMP-1_R2"
     version: "${version}"
 
   min_version: 2024.2.0
