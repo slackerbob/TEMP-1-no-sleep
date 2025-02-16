@@ -31,6 +31,8 @@ esphome:
               switch.is_on: notify_only_outside_temp_difference
             then:
               - logger.log: "Apollo Automation: Notify Only Outside Temp Difference"
+              - switch.turn_on: accessory_power
+              - delay: 5s
               - lambda: |-
                   id(reportAllValues).execute();
               - delay: 5s          
