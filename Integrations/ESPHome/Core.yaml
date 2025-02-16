@@ -1,5 +1,5 @@
 substitutions:
-  version: "25.2.13.1"
+  version: "25.2.16.1"
 
 esp32:
   board: esp32-c3-devkitm-1
@@ -28,6 +28,7 @@ api:
                 ESP_LOGW("Apollo", "Preventing Deep Sleep Due To OTA Or Switch");
                 id(deep_sleep_1).prevent_deep_sleep(); 
           else: 
+            - switch.turn_on: accessory_power
             - delay: 10s
             - lambda: |-
                 id(reportAllValues).execute();
@@ -251,11 +252,19 @@ sensor:
     id: temp_probe
     filters:
       - lambda: |-
-          // If the Food probe is selected, return NaN (not a number)
-          if (id(temp_probe_select).state == "Food") {
-            return NAN; // Report NaN
+          if (isnan(x)) {
+            return NAN;
           }
-          return x; // Otherwise, return the normal value
+
+          if (x == 85.0) {
+              return NAN;
+          }
+
+          if (id(temp_probe_select).state == "Food") {
+            return NAN;
+          }
+
+          return x;
     on_value:
       if:
         condition:
