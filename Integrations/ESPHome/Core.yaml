@@ -303,21 +303,16 @@ sensor:
           - lambda: |-
               id(tempRangeCheck).execute();
 
-  - platform: resistance
-    id: resistance_sensor
-    sensor: source_sensor
-    configuration: UPSTREAM
-    reference_voltage: 3.3V
-    resistor: 100kOhm
-    name: Resistance Sensor
-    internal: true
-
   - platform: adc
     pin: 
       number: GPIO4
     id: source_sensor
     update_interval: never
-    attenuation: auto
+    attenuation: 12db
+    filters:
+      - sliding_window_moving_average:
+          window_size: 3
+          send_every: 3
 
 light:
   - platform: esp32_rmt_led_strip

@@ -1,21 +1,21 @@
 esphome:
-  name: "apollo-temp-1b-minimal"
-  friendly_name: Apollo TEMP-1B Minimal
-  comment: Apollo TEMP-1B Minimal
+  name: "apollo-temp-1ble-r2"
+  friendly_name: Apollo TEMP-1BLE
+  comment: Apollo TEMP-1BLE
   name_add_mac_suffix: true
   platformio_options:
     board_build.flash_mode: dio
 
   project:
-    name: "ApolloAutomation.TEMP-1B_Minimal"
+    name: "Apollo.TEMP-1BLE_R2"
     version: "${version}"
 
   min_version: 2024.2.0
   on_boot:
-    priority: 500
+    priority: 800
     then:
       - lambda: |-
-          id(deep_sleep_1).set_sleep_duration(id(deep_sleep_sleep_duration).state * 60 * 60 * 1000);
+          id(deep_sleep_1).set_sleep_duration(id(deep_sleep_sleep_duration).state * 60 * 1000);
       - if:
           condition:
             or:
@@ -67,31 +67,31 @@ esphome:
                       then:
                       - deep_sleep.enter:
                           id: deep_sleep_1
-                  
+      
   on_shutdown:
     - light.turn_off: rgb_light
 
-dashboard_import:
-  package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1B_Minimal.yaml
-  import_full_config: false
 
-safe_mode:
+dashboard_import:
+  package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1_BLE_R2.yaml
+  import_full_config: false
 
 ota:
   - platform: esphome
     id: ota_esphome
 
-web_server:
-  port: 80
+safe_mode:
 
 wifi:
-  id: wifi_1
   ap:
-    ssid: "Apollo TEMP1B Hotspot"
-
-logger:
-
+    ssid: "Apollo TEMP1 Hotspot"
+    
+bluetooth_proxy:
+  active: true
+esp32_ble_tracker:
+  scan_parameters:
+    active: false
 packages:
   core: !include Core.yaml
-  battery: !include Battery.yaml
-  100Resistance: !include 100Resistance.yaml
+  nonbattery: !include NonBattery.yaml
+  33resistance: !include 33Resistance.yaml
