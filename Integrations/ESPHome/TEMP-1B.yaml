@@ -125,3 +125,4 @@ logger:
 packages:
   core: !include Core.yaml
   battery: !include Battery.yaml
+  100Resistance: !include 100Resistance.yaml
