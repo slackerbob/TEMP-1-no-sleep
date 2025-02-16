@@ -1,5 +1,5 @@
 esphome:
-  name: "apollo-temp-1b-minimal-r2"
+  name: "apollo-temp-1bminimalr2"
   friendly_name: Apollo TEMP-1B Minimal
   comment: Apollo TEMP-1B Minimal
   name_add_mac_suffix: true
