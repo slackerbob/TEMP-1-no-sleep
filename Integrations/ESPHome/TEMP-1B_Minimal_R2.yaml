@@ -1,5 +1,5 @@
 esphome:
-  name: "apollo-temp-1b-minimal"
+  name: "apollo-temp-1b-minimal-r2"
   friendly_name: Apollo TEMP-1B Minimal
   comment: Apollo TEMP-1B Minimal
   name_add_mac_suffix: true
@@ -7,7 +7,7 @@ esphome:
     board_build.flash_mode: dio
 
   project:
-    name: "ApolloAutomation.TEMP-1B_Minimal"
+    name: "ApolloAutomation.TEMP-1B_Minimal_R2"
     version: "${version}"
 
   min_version: 2024.2.0
@@ -72,7 +72,7 @@ esphome:
     - light.turn_off: rgb_light
 
 dashboard_import:
-  package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1B_Minimal.yaml
+  package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1B_Minimal_R2.yaml
   import_full_config: false
 
 safe_mode:
@@ -94,4 +94,4 @@ logger:
 packages:
   core: !include Core.yaml
   battery: !include Battery.yaml
-  100Resistance: !include 100Resistance.yaml
+  33resistance: !include 33Resistance.yaml
