@@ -98,4 +98,4 @@ esp32_ble_tracker:
 packages:
   core: !include Core.yaml
   battery: !include Battery.yaml
-  33resistance: !include 33Resistance.yaml
+  33resistance: !include NewResistance.yaml
