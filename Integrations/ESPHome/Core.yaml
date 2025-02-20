@@ -1,10 +1,12 @@
 substitutions:
-  version: "25.1.30.1"
+  version: "25.2.19.1"
 
 esp32:
   board: esp32-c3-devkitm-1
   framework:
     type: esp-idf
+    version: 4.4.8
+    platform_version: 5.4.0   
 
 api:
   services:
@@ -28,6 +30,7 @@ api:
                 ESP_LOGW("Apollo", "Preventing Deep Sleep Due To OTA Or Switch");
                 id(deep_sleep_1).prevent_deep_sleep(); 
           else: 
+            - switch.turn_on: accessory_power
             - delay: 10s
             - lambda: |-
                 id(reportAllValues).execute();
@@ -72,6 +75,7 @@ i2c:
 
 one_wire:
   - platform: gpio
+    id: one_wire_bus
     pin: 
       number: GPIO6
 
@@ -134,7 +138,7 @@ number:
     restore_value: true
     initial_value: 125.0
     min_value: -55.0
-    max_value: 125.0
+    max_value: 300.0
     entity_category: "CONFIG"
     unit_of_measurement: "°C"
     optimistic: true
@@ -169,6 +173,7 @@ number:
     update_interval: never
     step: 0.1
     mode: box
+    disabled_by_default: true
 
 binary_sensor:
   - platform: status
@@ -245,15 +250,23 @@ sensor:
 
   - platform: dallas_temp
     name: "Temperature Probe"
-    update_interval: never
+    update_interval: 60s
     id: temp_probe
     filters:
       - lambda: |-
-          // If the Food probe is selected, return NaN (not a number)
-          if (id(temp_probe_select).state == "Food") {
-            return NAN; // Report NaN
+          if (isnan(x)) {
+            return NAN;
           }
-          return x; // Otherwise, return the normal value
+
+          if (x == 85.0) {
+              return NAN;
+          }
+
+          if (id(temp_probe_select).state == "Food") {
+            return NAN;
+          }
+
+          return x;
     on_value:
       if:
         condition:
@@ -275,7 +288,7 @@ sensor:
       id: aht_humidity
       filters:
         - lambda: return x - id(aht_humidity_offset).state;
-    update_interval: never
+    update_interval: 60s
   
   - platform: ntc
     id: ntc_sensor
@@ -301,21 +314,16 @@ sensor:
           - lambda: |-
               id(tempRangeCheck).execute();
 
-  - platform: resistance
-    id: resistance_sensor
-    sensor: source_sensor
-    configuration: UPSTREAM
-    reference_voltage: 3.3V
-    resistor: 100kOhm
-    name: Resistance Sensor
-    internal: true
-
   - platform: adc
     pin: 
       number: GPIO4
     id: source_sensor
     update_interval: never
-    attenuation: auto
+    attenuation: 12db
+    filters:
+      - sliding_window_moving_average:
+          window_size: 3
+          send_every: 3
 
 light:
   - platform: esp32_rmt_led_strip
@@ -350,6 +358,7 @@ button:
     disabled_by_default: True
     name: "Factory Reset ESP"
     id: factory_reset_all
+
 
 select:
   - platform: template
@@ -424,6 +433,7 @@ switch:
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
     entity_category: "config"
+    disabled_by_default: true
 
 
 script:
@@ -548,3 +558,11 @@ script:
                 - light.turn_off:
                     id: rgb_light
 
+interval:  
+  - interval: 1s    
+    then:      
+      - if:          
+          condition:            
+            - switch.is_off: sensor_selector          
+          then:            
+            - component.update: source_sensor

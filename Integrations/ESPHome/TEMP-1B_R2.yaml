@@ -1,21 +1,21 @@
 esphome:
-  name: "apollo-temp-1"
-  friendly_name: Apollo TEMP-1
-  comment: Apollo TEMP-1
+  name: "apollo-temp-1b-42"
+  friendly_name: Apollo TEMP-1B
+  comment: Apollo TEMP-1B
   name_add_mac_suffix: true
   platformio_options:
     board_build.flash_mode: dio
 
   project:
-    name: "ApolloAutomation.TEMP-1"
+    name: "Apollo.TEMP-1B_R2"
     version: "${version}"
 
   min_version: 2024.2.0
   on_boot:
-    - priority: 800
+    - priority: 500
       then:
         - lambda: |-
-            id(deep_sleep_1).set_sleep_duration(id(deep_sleep_sleep_duration).state * 60 * 1000);
+            id(deep_sleep_1).set_sleep_duration(id(deep_sleep_sleep_duration).state * 60 * 60 * 1000);
         - if:
             condition:
               or:
@@ -69,20 +69,20 @@ esphome:
                         then:
                         - deep_sleep.enter:
                             id: deep_sleep_1
-    - priority: -500
+    - priority: -300
       then:
-        - switch.turn_on: accessory_power
         - if:
             condition:
               - lambda: "return id(runTest);"
             then:
               - delay: 10s
               - lambda: "id(testScript).execute();"
+                  
   on_shutdown:
     - light.turn_off: rgb_light
 
 dashboard_import:
-  package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1_Minimal.yaml
+  package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1B_Minimal_R2.yaml
   import_full_config: false
 
 improv_serial:
@@ -108,7 +108,7 @@ update:
   - platform: http_request
     id: firmware_update
     name: Firmware Update
-    source: https://apolloautomation.github.io/TEMP-1/firmware/manifest.json
+    source: https://apolloautomation.github.io/TEMP-1/firmware-b2/manifest.json
 
 wifi:
   id: wifi_1
@@ -118,11 +118,11 @@ wifi:
   on_disconnect:
     - ble.enable:
   ap:
-    ssid: "Apollo TEMP1 Hotspot"
+    ssid: "Apollo TEMP1B Hotspot"
 
 logger:
 
 packages:
   core: !include Core.yaml
-  nonbattery: !include NonBattery.yaml
-  100Resistance: !include 100Resistance.yaml
+  battery: !include Battery.yaml
+  33resistance: !include NewResistance.yaml
