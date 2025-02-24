@@ -17,6 +17,7 @@ jobs:
           - Integrations/ESPHome/TEMP-1_Beta.yaml
           - Integrations/ESPHome/TEMP-1_Minimal.yaml
           - Integrations/ESPHome/TEMP-1B_Minimal.yaml
+          - Integrations/ESPHome/TEMP-1_Beta.yaml
 
           - Integrations/ESPHome/TEMP-1_R2.yaml
           - Integrations/ESPHome/TEMP-1B_R2.yaml

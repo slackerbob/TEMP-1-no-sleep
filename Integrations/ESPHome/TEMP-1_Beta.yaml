@@ -1,6 +1,6 @@
 substitutions:
   name: apollo-temp-1_beta
-  version: "25.1.23.1"
+  version: "25.2.23.1"
   device_description: ${name} made by Apollo Automation - version ${version}.
 
 esphome:
