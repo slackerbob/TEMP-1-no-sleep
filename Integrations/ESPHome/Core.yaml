@@ -1,5 +1,5 @@
 substitutions:
-  version: "25.2.22.1"
+  version: "25.3.5.1"
 
 esp32:
   board: esp32-c3-devkitm-1
@@ -132,7 +132,7 @@ number:
     update_interval: never
     step: 0.1
     mode: box
-    
+
   - platform: template
     name: Food Probe Offset
     id: ntc_temperature_offset
