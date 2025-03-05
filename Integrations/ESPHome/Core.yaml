@@ -1,5 +1,5 @@
 substitutions:
-  version: "25.2.22.1"
+  version: "25.3.5.1"
 
 esp32:
   board: esp32-c3-devkitm-1
@@ -105,6 +105,21 @@ number:
     mode: box
 
   - platform: template
+    name: Temp Probe Offset
+    id: dallas_temperature_offset
+    restore_value: true
+    initial_value: 0.0
+    min_value: -70.0
+    max_value: 70.0
+    entity_category: "CONFIG"
+    unit_of_measurement: "°C"
+    optimistic: true
+    update_interval: never
+    step: 0.1
+    mode: box
+    disabled_by_default: true
+
+  - platform: template
     name: Board Humidity Offset
     id: aht_humidity_offset
     restore_value: true
@@ -117,6 +132,7 @@ number:
     update_interval: never
     step: 0.1
     mode: box
+
   - platform: template
     name: Food Probe Offset
     id: ntc_temperature_offset
@@ -266,7 +282,7 @@ sensor:
             return NAN;
           }
 
-          return x;
+          return x - id(dallas_temperature_offset).state;
     on_value:
       if:
         condition:
