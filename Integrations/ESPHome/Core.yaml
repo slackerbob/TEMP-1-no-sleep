@@ -1,5 +1,5 @@
 substitutions:
-  version: "25.6.9.1"
+  version: "25.6.24.1"
 
 esp32:
   board: esp32-c3-devkitm-1
@@ -203,6 +203,7 @@ binary_sensor:
       mode:
         input: true
         pullup: true
+      ignore_strapping_warning: true
     id: reset_button
     on_press:
       then:
