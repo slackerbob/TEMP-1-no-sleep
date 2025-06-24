@@ -1,12 +1,13 @@
 substitutions:
-  version: "25.3.5.1"
+  version: "25.6.9.1"
 
 esp32:
   board: esp32-c3-devkitm-1
   framework:
     type: esp-idf
-    version: 4.4.8
-    platform_version: 5.4.0   
+    advanced:
+      assertion_level: SILENT
+      enable_lwip_assert: false
 
 api:
   services:
@@ -346,7 +347,6 @@ light:
     id: rgb_light
     name: "RGB Light"
     pin: GPIO3
-    rmt_channel: 0
     default_transition_length: 0s
     chipset: WS2812
     num_leds: 1
