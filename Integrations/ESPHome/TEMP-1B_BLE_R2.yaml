@@ -10,7 +10,7 @@ esphome:
     name: "Apollo.TEMP-1BBLE_R2"
     version: "${version}"
 
-  min_version: 2024.2.0
+  min_version: 2025.6.0
   on_boot:
     priority: 800
     then:
