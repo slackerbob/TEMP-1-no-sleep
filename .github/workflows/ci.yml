@@ -5,26 +5,25 @@ on:
 
 jobs:
   ci:
-    name: Building ${{ matrix.file }}
+    name: Building ${{ matrix.file }} / ESPHome ${{ matrix.esphome-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         file:
-          - Integrations/ESPHome/TEMP-1.yaml
-          - Integrations/ESPHome/TEMP-1B.yaml
-          - Integrations/ESPHome/TEMP-1_BLE.yaml
-          - Integrations/ESPHome/TEMP-1B_BLE.yaml
-          - Integrations/ESPHome/TEMP-1_Beta.yaml
-          - Integrations/ESPHome/TEMP-1_Minimal.yaml
-          - Integrations/ESPHome/TEMP-1B_Minimal.yaml
-          - Integrations/ESPHome/TEMP-1_Beta.yaml
+          - TEMP-1.yaml
+          - TEMP-1B.yaml
+          - TEMP-1_BLE.yaml
+          - TEMP-1B_BLE.yaml
+          - TEMP-1_Beta.yaml
+          - TEMP-1_Minimal.yaml
+          - TEMP-1B_Minimal.yaml
 
-          - Integrations/ESPHome/TEMP-1_R2.yaml
-          - Integrations/ESPHome/TEMP-1B_R2.yaml
-          - Integrations/ESPHome/TEMP-1_BLE_R2.yaml
-          - Integrations/ESPHome/TEMP-1B_BLE_R2.yaml
-          - Integrations/ESPHome/TEMP-1_Minimal_R2.yaml
-          - Integrations/ESPHome/TEMP-1B_Minimal_R2.yaml
+          - TEMP-1_R2.yaml
+          - TEMP-1B_R2.yaml
+          - TEMP-1_BLE_R2.yaml
+          - TEMP-1B_BLE_R2.yaml
+          - TEMP-1_Minimal_R2.yaml
+          - TEMP-1B_Minimal_R2.yaml
         esphome-version:
           - stable
           - beta
@@ -35,4 +34,4 @@ jobs:
       - name: Build ESPHome firmware to verify configuration
         uses: esphome/build-action@v6
         with:
-          yaml-file: ${{ matrix.file }}
+          yaml-file: Integrations/ESPHome/${{ matrix.file }}
