@@ -74,6 +74,7 @@ esphome:
   on_shutdown:
     - light.turn_off: rgb_light
 
+logger:
 
 dashboard_import:
   package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1B_BLE.yaml
