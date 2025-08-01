@@ -23,7 +23,7 @@ jobs:
       id-token: write
       pull-requests: write
     with:
-      device-name: plt-1
+      device-name: temp-1
       yaml-files: |
         Integrations/ESPHome/TEMP-1.yaml
         Integrations/ESPHome/TEMP-1B.yaml
