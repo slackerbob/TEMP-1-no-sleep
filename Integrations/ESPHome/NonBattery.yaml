@@ -1,7 +1,7 @@
-deep_sleep:
-  id: deep_sleep_1
-  sleep_duration: 5min
-  run_duration: 90s
+#deep_sleep:
+#  id: deep_sleep_1
+#  sleep_duration: 5min
+#  run_duration: 90s
 
 #number:
 #  - platform: template
