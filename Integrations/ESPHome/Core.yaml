@@ -370,6 +370,7 @@ button:
   - platform: restart
     icon: mdi:power-cycle
     name: "ESP Reboot"
+    id: esp_reboot
 
   - platform: factory_reset
     disabled_by_default: True
