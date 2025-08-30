@@ -14,17 +14,17 @@ esphome:
   on_boot:
     priority: 800
     then:
-      - lambda: |-
-          id(deep_sleep_1).set_sleep_duration(id(deep_sleep_sleep_duration).state * 60 * 1000);
-      - if:
-          condition:
-            or:
-              - binary_sensor.is_on: ota_mode
-              - switch.is_on: prevent_sleep
-          then:
-             - lambda: |- 
-                ESP_LOGW("Apollo", "Preventing Deep Sleep Due To OTA On Boot");
-                id(deep_sleep_1).prevent_deep_sleep(); 
+#      - lambda: |-
+#          id(deep_sleep_1).set_sleep_duration(id(deep_sleep_sleep_duration).state * 60 * 1000);
+#      - if:
+#          condition:
+#            or:
+#              - binary_sensor.is_on: ota_mode
+#              - switch.is_on: prevent_sleep
+#          then:
+#             - lambda: |- 
+#                ESP_LOGW("Apollo", "Preventing Deep Sleep Due To OTA On Boot");
+#                id(deep_sleep_1).prevent_deep_sleep(); 
 
       - if:
           condition:
@@ -60,15 +60,15 @@ esphome:
                   - logger.log: "Apollo Automation: Outside Temp Change Detected"
                   - lambda: |-
                       id(last_temp) = id(temp_probe).state;
-                else: # If Not Then Check OTA And Sleep
-                  - if:
-                      condition:
-                        and:
-                          - binary_sensor.is_off: ota_mode
-                          - switch.is_off: prevent_sleep
-                      then:
-                      - deep_sleep.enter:
-                          id: deep_sleep_1
+#                else: # If Not Then Check OTA And Sleep
+#                  - if:
+#                      condition:
+#                        and:
+#                          - binary_sensor.is_off: ota_mode
+#                          - switch.is_off: prevent_sleep
+#                      then:
+#                      - deep_sleep.enter:
+#                          id: deep_sleep_1
       
   on_shutdown:
     - light.turn_off: rgb_light
@@ -76,7 +76,7 @@ esphome:
 logger:
 
 dashboard_import:
-  package_import_url: github://ApolloAutomation/TEMP-1/Integrations/ESPHome/TEMP-1_BLE_R2.yaml
+  package_import_url: github://slackerbob/TEMP-1-no-sleep/Integrations/ESPHome/TEMP-1_BLE_R2.yaml
   import_full_config: false
 
 ota:
